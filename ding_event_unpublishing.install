@@ -1,0 +1,13 @@
+<?php
+
+/**
+ * @file
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function ding_event_unpublishing_uninstall() {
+  variable_del('ding_event_unpublish_schedule');
+  variable_del('ding_event_unpublish_schedule_buffer');
+}
