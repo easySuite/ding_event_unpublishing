@@ -2,6 +2,7 @@
 
 /**
  * @file
+ * Enables automatic unpublish scheduling for Ding Event content type nodes.
  */
 
 /**
@@ -9,47 +10,46 @@
  */
 function ding_event_unpublishing_form_alter(&$form, &$form_state, $form_id) {
   if ($form_id == 'ding_event_admin_setting_form') {
-    $form['ding_event_unpublish'] = [
+    $form['ding_event_unpublishing'] = [
       '#type' => 'fieldset',
       '#title' => t('Events un-publish scheduling settings'),
     ];
 
-    $form['ding_event_unpublish']['ding_event_unpublish_schedule'] = [
+    $form['ding_event_unpublishing']['ding_event_unpublishing_schedule'] = [
       '#type' => 'checkbox',
       '#title' => t('Enable event un-publish scheduling'),
       '#description' => t('Allow to enable automatic unpublish scheduling.'),
-      '#default_value' => variable_get('ding_event_unpublish_schedule', FALSE),
+      '#default_value' => variable_get('ding_event_unpublishing_schedule', FALSE),
     ];
 
-    $form['ding_event_unpublish']['ding_event_unpublish_schedule_buffer'] = [
+    $form['ding_event_unpublishing']['ding_event_unpublishing_schedule_buffer'] = [
       '#type' => 'textfield',
       '#title' => t('Un-publish schedule buffer (in hours)'),
       '#description' => t('The amount of time (<strong>in hours</strong>) after which the event node will be unpublished.'),
-      '#default_value' => variable_get('ding_event_unpublish_schedule_buffer', 0),
+      '#default_value' => variable_get('ding_event_unpublishing_schedule_buffer', 0),
       '#size' => 60,
       '#states' => [
         'visible' => [
-          ':input[name="ding_event_unpublish_schedule"]' => ['checked' => TRUE],
+          ':input[name="ding_event_unpublishing_schedule"]' => ['checked' => TRUE],
         ],
       ],
     ];
   }
 }
 
-
 /**
  * Implements hook_node_presave().
  *
  * @throws \Exception
  */
-function ding_event_node_presave($node) {
+function ding_event_unpublishing_node_presave($node) {
   if ($node->type !== 'ding_event') {
     return;
   }
 
   $event_date = $node->field_ding_event_date[LANGUAGE_NONE][0];
-  $scheduled_unpublish = variable_get('ding_event_unpublish_schedule', FALSE);
-  $scheduled_unpublish_buffer = variable_get('ding_event_unpublish_schedule_buffer', 0);
+  $scheduled_unpublish = variable_get('ding_event_unpublishing_schedule', FALSE);
+  $scheduled_unpublish_buffer = variable_get('ding_event_unpublishing_schedule_buffer', 0);
 
   if ($scheduled_unpublish) {
     $tz_db = new DateTimeZone($event_date['timezone_db']);
@@ -67,4 +67,3 @@ function ding_event_node_presave($node) {
       ->getTimestamp();
   }
 }
-
